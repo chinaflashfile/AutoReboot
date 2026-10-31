@@ -1,33 +1,29 @@
 # Auto Reboot (ô khởi động lại trong bảng kéo xuống)
 
 Thêm một ô "Khởi động lại" vào bảng Cài đặt nhanh. Chạm một lần là máy khởi động lại,
-không cần nút nguồn. Dùng quyền Device Owner (`DevicePolicyManager.reboot`), dự phòng root.
+không cần nút nguồn. Cài như app bình thường, **không cần xóa tài khoản, không cần máy tính**.
 
-## 1. Build ra APK
+## Cách hoạt động
 
-1. Tạo repo GitHub, đẩy toàn bộ thư mục này lên nhánh `main`.
-2. Tab **Actions** > **Build APK** > chờ chạy xong > tải **AutoReboot-apk** ở mục Artifacts > giải nén ra `app-debug.apk`.
+Khi chạm ô, app dùng dịch vụ Trợ năng để mở menu nguồn của hệ thống rồi tự bấm "Khởi động lại"
+(và nút xác nhận nếu có). Dịch vụ chỉ hành động trong 10 giây sau khi bạn chạm ô.
 
-Hoặc mở bằng Android Studio > Build > Build APK(s).
+## Cài đặt
 
-## 2. Cài và cấp quyền (một lần)
+1. Tải `app-debug.apk` từ tab **Actions** > lần chạy mới nhất > Artifacts > **AutoReboot-apk**, cài lên máy.
+2. Mở app, bấm **Mở cài đặt Trợ năng**, vào Ứng dụng đã cài đặt > **Auto Reboot** và bật công tắc.
+   - Nếu máy báo "Cài đặt bị hạn chế" (Android 13 trở lên): Cài đặt > Ứng dụng > Auto Reboot > menu 3 chấm > **Cho phép cài đặt bị hạn chế**, rồi bật lại công tắc.
+3. Kéo thanh thông báo xuống > biểu tượng bút chì > kéo ô **Khởi động lại** vào.
 
-1. Cài `app-debug.apk`.
-2. Xóa hết tài khoản trên máy (Google, OPPO/Heytap...). Android chỉ cho cấp Device Owner khi không còn tài khoản.
-3. Bật Gỡ lỗi USB, cắm máy tính, chạy:
-   ```
-   adb shell dpm set-device-owner com.dc.autoreboot/.AdminReceiver
-   ```
-   Thấy `Success` là xong, rồi thêm lại tài khoản.
+## Tùy chọn: Device Owner (ổn định hơn, nhưng phải xóa hết tài khoản trước)
 
-## 3. Thêm ô vào bảng kéo xuống
-
-Kéo thanh thông báo xuống > biểu tượng bút chì (Chỉnh sửa) > kéo ô **Khởi động lại** lên khu vực đang dùng.
-Từ đó, kéo xuống và chạm ô này để reboot.
+```
+adb shell dpm set-device-owner com.dc.autoreboot/.AdminReceiver
+```
+Khi là Device Owner, app gọi thẳng lệnh reboot của hệ thống mà không cần bấm menu nguồn.
 
 ## Ghi chú
 
-- Nhấn giữ ô để mở màn hình trạng thái, có nút **Gỡ quyền Device Owner**. Hãy gỡ quyền trước khi gỡ cài đặt app.
+- Nếu ColorOS đổi tên nút trong menu nguồn, sửa danh sách `LABELS` trong `RebootAccessibilityService.java`.
+- Ở màn hình khóa, ColorOS có thể không cho mở menu nguồn hoặc yêu cầu mở khóa trước.
 - Android từ chối reboot khi đang có cuộc gọi.
-- Ô chỉ hiện ở màn hình khóa nếu ColorOS cho phép; máy có thể yêu cầu mở khóa trước khi dùng ô.
-- Lỗi `Not allowed to set the device owner because there are already some accounts`: còn tài khoản, xóa hết rồi chạy lại.

@@ -12,11 +12,11 @@ public class RebootTileService extends TileService {
     public void onStartListening() {
         Tile tile = getQsTile();
         if (tile == null) return;
-        boolean ok = RebootHelper.isDeviceOwner(this);
+        boolean ok = RebootHelper.canReboot(this);
         tile.setLabel("Khởi động lại");
         tile.setState(ok ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
         if (Build.VERSION.SDK_INT >= 29) {
-            tile.setSubtitle(ok ? "Chạm để reboot" : "Chưa cấp quyền");
+            tile.setSubtitle(ok ? "Chạm để reboot" : "Cần bật Trợ năng");
         }
         tile.updateTile();
     }
@@ -24,7 +24,8 @@ public class RebootTileService extends TileService {
     @Override
     public void onClick() {
         if (!RebootHelper.reboot(this)) {
-            Toast.makeText(this, "Không reboot được: chưa cấp quyền Device Owner hoặc đang có cuộc gọi",
+            Toast.makeText(this,
+                    "Chưa bật dịch vụ Trợ năng \"Auto Reboot\". Mở app Auto Reboot để bật.",
                     Toast.LENGTH_LONG).show();
         }
     }

@@ -12,7 +12,17 @@ final class RebootHelper {
         return dpm.isDeviceOwnerApp(c.getPackageName());
     }
 
-    /** Khởi động lại bằng Device Owner; nếu máy đã root thì dự phòng bằng su. */
+    static boolean isAccessibilityReady() {
+        return RebootAccessibilityService.instance != null;
+    }
+
+    static boolean canReboot(Context c) {
+        return isDeviceOwner(c) || isAccessibilityReady();
+    }
+
+    /**
+     * Thứ tự: Device Owner (nếu đã cấp) > dịch vụ Trợ năng (bấm menu nguồn) > root (su).
+     */
     static boolean reboot(Context c) {
         try {
             if (isDeviceOwner(c)) {
@@ -22,6 +32,11 @@ final class RebootHelper {
             }
         } catch (Exception ignored) {
             // ví dụ đang có cuộc gọi: Android từ chối reboot
+        }
+        RebootAccessibilityService s = RebootAccessibilityService.instance;
+        if (s != null) {
+            s.requestReboot();
+            return true;
         }
         try {
             Process p = Runtime.getRuntime().exec(new String[]{"su", "-c", "reboot"});
